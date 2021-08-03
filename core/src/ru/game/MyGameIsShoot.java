@@ -12,12 +12,14 @@ public class MyGameIsShoot extends ApplicationAdapter {
 	@Override
 	public void create () {			// Создание изображения при первом открытии
 		batch = new SpriteBatch();
+		img = new Texture("background.jpg");
 	}
 
 	@Override
 	public void render () {			// Отрисовка каждые 60 секунл
 		ScreenUtils.clear(1, 0, 0, 1);
 		batch.begin();
+		batch.draw(img, 0,0);
 		batch.end();
 	}
 	
