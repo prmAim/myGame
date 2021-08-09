@@ -14,7 +14,7 @@ public class MenuScreen extends BaseScreen {
     private Vector2 posImg;             // вектор позиции изображения
     private Vector2 posMouse;           // вектор координат мышки
     private Vector2 v;                  // вектор скорости
-    private final float STEP = 0.01f;   // шаг
+    private final float V_LEN = 0.5f;   // шаг
 
     /**
      * Показать экран Меню
@@ -23,8 +23,8 @@ public class MenuScreen extends BaseScreen {
     public void show() {
         super.show();
         img = new Texture("badlogic.jpg");
-        posImg = new Vector2(0, 0);
-        posMouse = new Vector2(0, 0);
+        posImg = new Vector2();
+        posMouse = new Vector2();
         v = new Vector2();
     }
 
@@ -35,14 +35,14 @@ public class MenuScreen extends BaseScreen {
     public void render(float delta) {
         super.render(delta);
         batch.begin();
-        if (v.x > 0 && posImg.x <= posMouse.x && v.y > 0 && posImg.y <= posMouse.y ||
-                v.x > 0 && posImg.x <= posMouse.x && v.y < 0 && posImg.y >= posMouse.y ||
-                v.x < 0 && posImg.x >= posMouse.x && v.y < 0 && posImg.y >= posMouse.y ||
-                v.x < 0 && posImg.x >= posMouse.x && v.y > 0 && posImg.y <= posMouse.y ){
-            posImg.add(v);
-        }
         batch.draw(img, posImg.x, posImg.y);
         batch.end();
+        if (posMouse.dst(posImg) > V_LEN) {
+            posImg.add(v);
+        } else {
+            posImg.set(posMouse);
+        }
+
     }
 
     /**
@@ -62,7 +62,7 @@ public class MenuScreen extends BaseScreen {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         posMouse.set(screenX, Gdx.graphics.getHeight() - screenY);
-        v.set(posMouse).sub(posImg).scl(STEP);
-        return super.touchDown(screenX, screenY, pointer, button);
+        v.set(posMouse.cpy().sub(posImg)).setLength(V_LEN);     // Вычисляем длину между вектором клика мышки и вектором картинки
+        return false;
     }
 }
