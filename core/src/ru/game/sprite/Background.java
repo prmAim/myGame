@@ -1,4 +1,4 @@
-package ru.game.splite;
+package ru.game.sprite;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;

@@ -5,16 +5,18 @@ import com.badlogic.gdx.math.Vector2;
 
 import ru.game.math.Rect;
 import ru.game.base.BaseScreen;
-import ru.game.splite.Background;
+import ru.game.sprite.Background;
+import ru.game.sprite.Logo;
 
 /**
  * Класс потоком  <Меню>
  */
 public class MenuScreen extends BaseScreen {
     private Texture img;
-    private Background background;
+    private Texture imgMove;
 
-    private Vector2 posImg;
+    private Background background;
+    private Logo moveImg;
 
     /**
      * Показать экран Меню
@@ -23,13 +25,18 @@ public class MenuScreen extends BaseScreen {
     public void show() {
         super.show();
         img = new Texture("textures/bg.png");
-        background = new Background(img);
-        posImg = new Vector2();
+        background = new Background(img);                   // splite для фоновой картинки
+        imgMove = new Texture("badlogic.jpg");
+        moveImg = new Logo(imgMove);                        // splite для объекта, который перемещаем
     }
 
+    /**
+     * Переопределяем метод для того, чтобы объект находился к координатной сетке (а не координаты LBX)
+     */
     @Override
     public void resize(Rect worldBounds) {
         background.resize(worldBounds);
+        moveImg.resize(worldBounds);
     }
 
     /**
@@ -38,8 +45,10 @@ public class MenuScreen extends BaseScreen {
     @Override
     public void render(float delta) {
         super.render(delta);
+        moveImg.update(delta);
         batch.begin();
         background.draw(batch);
+        moveImg.draw(batch);
         batch.end();
     }
 
@@ -50,7 +59,8 @@ public class MenuScreen extends BaseScreen {
     public void dispose() {
         super.dispose();
         img.dispose();
-        posImg = null;
+        imgMove.dispose();
+        moveImg = null;
     }
 
     /**
@@ -58,6 +68,7 @@ public class MenuScreen extends BaseScreen {
      */
     @Override
     public boolean touchDown(Vector2 touch, int pointer, int button) {
-        return super.touchDown(touch, pointer, button);
+        moveImg.touchDown(touch, pointer, button);
+        return false;
     }
 }
