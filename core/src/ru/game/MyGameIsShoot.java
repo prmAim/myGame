@@ -1,7 +1,7 @@
 package ru.game;
 
 import com.badlogic.gdx.Game;
-import screen.MenuScreen;
+import ru.game.screen.MenuScreen;
 
 public class MyGameIsShoot extends Game {
 
