@@ -16,12 +16,12 @@ import ru.game.math.Rect;
  */
 public class BaseScreen implements Screen, InputProcessor {
     protected SpriteBatch batch;
-    private Rect screenBounds;
-    private Rect worldBounds;
-    private Rect glBounds;
+    private Rect screenBounds;      // координаты экрана в px
+    private Rect worldBounds;       // переход на "мировую" систему координат. экран 1f / 1f * аспект (высота/ширина). Переход через матрицу проекции
+    private Rect glBounds;          // итоговая координатная сетка. Переход через матрицу проекции
 
-    private Matrix4 worldToGl;
-    private Matrix3 screenToWorld;
+    private Matrix4 worldToGl;      // Матрица проекции. для перехода из "мировой" системы в итоговую сетку.
+    private Matrix3 screenToWorld;  //
 
     private Vector2 touch;
     /**
@@ -33,9 +33,9 @@ public class BaseScreen implements Screen, InputProcessor {
         batch = new SpriteBatch();
         screenBounds = new Rect();
         worldBounds = new Rect();
-        glBounds = new Rect(0, 0, 1f, 1f);
-        worldToGl = new Matrix4();
-        screenToWorld = new Matrix3();
+        glBounds = new Rect(0, 0, 1f, 1f);      // 1f - условная величина половины экрана
+        worldToGl = new Matrix4();          // Матрица для проектирование Объекта
+        screenToWorld = new Matrix3();      // Матрица для проектирование Объекта при событии
         touch = new Vector2();
     }
 
@@ -48,25 +48,35 @@ public class BaseScreen implements Screen, InputProcessor {
     }
 
     /**
-     * Изменения эрана
+     * При изменении экрана получаем высоту и ширину текущего экрана.
      */
     @Override
     public void resize(int width, int height) {
     System.out.println("resize width = " + width + " height = " + height);
-        screenBounds.setSize(width, height);
-        screenBounds.setLeft(0);
-        screenBounds.setBottom(0);
+        screenBounds.setSize(width, height);        // задаем размер прямоугольника Экрана в px (высота / 2 и ширина / 2)
+        screenBounds.setLeft(0);                    // начальные координаты
+        screenBounds.setBottom(0);                  // начальные координаты
 
-        float aspect = width / (float) height;
-        worldBounds.setHeight(1f);
-        worldBounds.setWidth(1f * aspect);
+        /**
+         * Для сохранения пропорции объектов, проецируем его квадратом. используем формулу:
+         * высота = 1f;
+         * ширина = 1f * aspect;
+         */
+        float aspect = width / (float) height;              // соотношение сторон ширина/высоту
+        worldBounds.setHeight(1f);                          // высота = перехода на проектируемую проекту
+        worldBounds.setWidth(1f * aspect);                  // ширина = перехода на проектируемую проекту
+
+        /**
+         * Получаем матрицу worldToGl = из worldBounds проецируемся через glBounds
+         */
         MatrixUtils.calcTransitionMatrix(worldToGl, worldBounds, glBounds);
-        MatrixUtils.calcTransitionMatrix(screenToWorld, screenBounds, worldBounds);
+        MatrixUtils.calcTransitionMatrix(screenToWorld, screenBounds, worldBounds);     // для событий
         batch.setProjectionMatrix(worldToGl);
         resize(worldBounds);
     }
 
     public void resize(Rect worldBounds) {
+        // Получем объект уже в новой системе координат.
         System.out.println("worldBounds width = " + worldBounds.getWidth() + " height = " + worldBounds.getHeight());
     }
 
@@ -128,7 +138,7 @@ public class BaseScreen implements Screen, InputProcessor {
      */
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        touch.set(screenX, Gdx.graphics.getHeight() - screenY).mul(screenToWorld);
+        touch.set(screenX, Gdx.graphics.getHeight() - screenY).mul(screenToWorld);      // Высота системы коордиат при событии начинается с вверху, а объект рисуется с нижней точки
         touchDown(touch, pointer, button);
         return false;
     }
@@ -158,6 +168,8 @@ public class BaseScreen implements Screen, InputProcessor {
      */
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
+        // mul(screenToWorld) = умножение на мартцу проекции
+        // вектор, которые имеет координаты, при отпускании кнопки Мыши в Итогой сетке
         touch.set(screenX, Gdx.graphics.getHeight() - screenY).mul(screenToWorld);
         touchDragged(touch, pointer);
         return false;

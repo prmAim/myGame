@@ -32,8 +32,11 @@ public class MatrixUtils {
      * @param dst итоговый квадрат
      */
     public static void calcTransitionMatrix(Matrix3 mat, Rect src, Rect dst) {
-        float scaleX = dst.getWidth() / src.getWidth();
-        float scaleY = dst.getHeight() / src.getHeight();
+        float scaleX = dst.getWidth() / src.getWidth();         // находим соотношение сторон по X
+        float scaleY = dst.getHeight() / src.getHeight();       // находим соотношение сторон по Y
+        // translate(-src.pos.x, -src.pos.y) = Сначала переносим src Квадрат в центр координат px.
+        // scale(scaleX, scaleY) = Меняем размеры до dst Квадрата
+        // translate(dst.pos.x, dst.pos.y) = переносим в Итоговую систему координат
         mat.idt().translate(dst.pos.x, dst.pos.y).scale(scaleX, scaleY).translate(-src.pos.x, -src.pos.y);
     }
 }

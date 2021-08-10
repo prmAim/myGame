@@ -6,34 +6,46 @@ import com.badlogic.gdx.math.Vector2;
 
 import ru.game.math.Rect;
 
+/**
+ * СОздание и описание графического объекта = спрайт
+ */
 public class Sprite extends Rect {
-    protected float angle;
-    protected float scale = 1f;
-    protected TextureRegion[] regions;
-    protected int frame;
+    protected float angle;              // Угол поворота
+    protected float scale = 1f;         // Скаляр. 1f = натуральная величина
+    protected TextureRegion[] regions;  // Текстуры объектов
+    protected int frame;                //
 
     public Sprite(TextureRegion region) {
-        regions = new TextureRegion[1];
+        regions = new TextureRegion[1];     // Одна текстура
         regions[0] = region;
     }
 
+    /**
+     * Установка ширины и высоты спрайта
+     */
     public void setHeightProportion(float height) {
         setHeight(height);
         float aspect = regions[frame].getRegionWidth() / (float) regions[frame].getRegionHeight();
         setWidth(height * aspect);
     }
 
+    public void update(float delta) {
+    }
+
+    /** Отрисовка объекта
+     */
     public void draw(SpriteBatch batch) {
         batch.draw(
                 regions[frame],
-                getLeft(), getBottom(),
-                halfWidth, halfHeight,
+                getLeft(), getBottom(),     // Начальные коорданаты объекты
+                halfWidth, halfHeight,      // Размер объекта
                 getWidth(), getHeight(),
                 scale, scale,
                 angle
         );
     }
 
+    // Обработка событий
     public void resize(Rect worldBounds) {
 
     }

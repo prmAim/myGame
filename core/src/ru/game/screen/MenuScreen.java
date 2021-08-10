@@ -5,16 +5,18 @@ import com.badlogic.gdx.math.Vector2;
 
 import ru.game.math.Rect;
 import ru.game.base.BaseScreen;
-import ru.game.splite.Background;
+import ru.game.sprite.Background;
+import ru.game.sprite.Logo;
 
 /**
  * Класс потоком  <Меню>
  */
 public class MenuScreen extends BaseScreen {
-    private Texture img;
-    private Background background;
+    private Texture imgBg;
+    private Texture imgMove;
 
-    private Vector2 posImg;
+    private Background spiteBackground;
+    private Logo spriteLogo;
 
     /**
      * Показать экран Меню
@@ -22,14 +24,19 @@ public class MenuScreen extends BaseScreen {
     @Override
     public void show() {
         super.show();
-        img = new Texture("textures/bg.png");
-        background = new Background(img);
-        posImg = new Vector2();
+        imgBg = new Texture("textures/bg.png");
+        spiteBackground = new Background(imgBg);               // splite для фоновой картинки с тестурой
+        imgMove = new Texture("badlogic.jpg");
+        spriteLogo = new Logo(imgMove);                        // splite для объекта с тестурой, который перемещаем
     }
 
+    /**
+     * Переопределяем метод для того, чтобы объект находился к координатной сетке (а не координаты LBX)
+     */
     @Override
     public void resize(Rect worldBounds) {
-        background.resize(worldBounds);
+        spiteBackground.resize(worldBounds);
+        spriteLogo.resize(worldBounds);
     }
 
     /**
@@ -38,8 +45,10 @@ public class MenuScreen extends BaseScreen {
     @Override
     public void render(float delta) {
         super.render(delta);
+        spriteLogo.update(delta);
         batch.begin();
-        background.draw(batch);
+        spiteBackground.draw(batch);
+        spriteLogo.draw(batch);
         batch.end();
     }
 
@@ -49,8 +58,9 @@ public class MenuScreen extends BaseScreen {
     @Override
     public void dispose() {
         super.dispose();
-        img.dispose();
-        posImg = null;
+        imgBg.dispose();
+        imgMove.dispose();
+        spriteLogo = null;
     }
 
     /**
@@ -58,6 +68,7 @@ public class MenuScreen extends BaseScreen {
      */
     @Override
     public boolean touchDown(Vector2 touch, int pointer, int button) {
-        return super.touchDown(touch, pointer, button);
+        spriteLogo.touchDown(touch, pointer, button);
+        return false;
     }
 }
