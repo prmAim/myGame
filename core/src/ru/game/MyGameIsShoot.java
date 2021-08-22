@@ -10,6 +10,6 @@ public class MyGameIsShoot extends Game {
      */
     @Override
     public void create() {                // Создание изображения при первом открытии
-        setScreen(new MenuScreen());    // Инициалихация класса Меню
+        setScreen(new MenuScreen(this));    // Инициалихация класса Меню
     }
 }

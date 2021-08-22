@@ -1,37 +1,24 @@
 package ru.game.screen;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.math.Vector2;
 
-import ru.game.math.Rect;
 import ru.game.base.BaseScreen;
+import ru.game.math.Rect;
 import ru.game.sprite.Background;
-import ru.game.sprite.ExitButton;
-import ru.game.sprite.PlayButton;
 import ru.game.sprite.Star;
 
 /**
- * Класс потоком  <Окно Меню>
+ * Класс потомом <Окно Игры>
  */
-public class MenuScreen extends BaseScreen {
-    private final int COUNT_STARS = 512;        // кол-во звезд
+public class GameScreen extends BaseScreen {
+    private final int COUNT_STARS = 128;        // кол-во звезд
 
-    private final Game game;                    // ссылка на игру
-
-    private Texture imgBg;
+    private Texture imgBg;                      // Текстура заднего фона
     private TextureAtlas atlas;
 
     private Background spiteBackground;         // объект задний фон
     private Star[] stars;                       // массив объектов Звезда
-
-    private ExitButton extButton;               // кнопка выхода
-    private PlayButton playButton;              // кнопка начала игрыыыы
-
-    public MenuScreen(Game game) {              // конструктор ссылку на объект Игра. Для создания нового окна
-        this.game = game;
-    }
 
     /**
      * Показать экран Меню
@@ -42,13 +29,11 @@ public class MenuScreen extends BaseScreen {
         imgBg = new Texture("textures/bg.png");
         spiteBackground = new Background(imgBg);               // splite для фоновой картинки с тестурой
 
-        atlas = new TextureAtlas("textures/menuAtlas.tpack");   // Подключение текстур атласа.
+        atlas = new TextureAtlas("textures/mainAtlas.tpack");   // Подключение текстур атласа.
         stars = new Star[COUNT_STARS];
         for (int i = 0; i < stars.length; i++) {
             stars[i] = new Star(atlas);
         }
-        extButton = new ExitButton(atlas);
-        playButton = new PlayButton(atlas, game);
     }
 
     /**
@@ -60,8 +45,6 @@ public class MenuScreen extends BaseScreen {
         for (Star star : stars) {
             star.resize(worldBounds);
         }
-        extButton.resize(worldBounds);
-        playButton.resize(worldBounds);
     }
 
     /**
@@ -84,21 +67,14 @@ public class MenuScreen extends BaseScreen {
         atlas.dispose();
     }
 
-    /**
-     * Отпускании клавиши на мышке
-     */
     @Override
-    public boolean touchDown(Vector2 touch, int pointer, int button) {
-        extButton.touchDown(touch, pointer, button);
-        playButton.touchDown(touch, pointer, button);
-        return false;
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        return super.touchDown(screenX, screenY, pointer, button);
     }
 
     @Override
-    public boolean touchUp(Vector2 touch, int pointer, int button) {
-        extButton.touchUp(touch, pointer, button);
-        playButton.touchUp(touch, pointer, button);
-        return false;
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        return super.touchUp(screenX, screenY, pointer, button);
     }
 
     /**
@@ -119,8 +95,6 @@ public class MenuScreen extends BaseScreen {
         for (Star star : stars) {
             star.draw(batch);
         }
-        extButton.draw(batch);
-        playButton.draw(batch);
         batch.end();
     }
 }
