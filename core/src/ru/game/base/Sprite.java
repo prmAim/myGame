@@ -13,11 +13,19 @@ public class Sprite extends Rect {
     protected float angle;              // Угол поворота
     protected float scale = 1f;         // Скаляр. 1f = натуральная величина
     protected TextureRegion[] regions;  // Текстуры объектов
+    protected TextureRegion[][] regions2;  // Текстуры объектов
     protected int frame;                //
 
     public Sprite(TextureRegion region) {
         regions = new TextureRegion[1];     // Одна текстура
         regions[0] = region;
+    }
+
+    public Sprite(TextureRegion region, int tileWidth,  int tileHeight) {
+        regions = new TextureRegion[1];     // Одна текстура
+        regions2 = new TextureRegion[10][10];
+        regions2 = region.split(tileWidth, tileHeight);
+        regions[0] = regions2[0][0];
     }
 
     /**

@@ -2,10 +2,12 @@ package ru.game.screen;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Vector2;
 
 import ru.game.base.BaseScreen;
 import ru.game.math.Rect;
 import ru.game.sprite.Background;
+import ru.game.sprite.MainShip;
 import ru.game.sprite.Star;
 
 /**
@@ -19,6 +21,8 @@ public class GameScreen extends BaseScreen {
 
     private Background spiteBackground;         // объект задний фон
     private Star[] stars;                       // массив объектов Звезда
+
+    private MainShip mainShip;                  // Объект летающий корабль
 
     /**
      * Показать экран Меню
@@ -34,6 +38,7 @@ public class GameScreen extends BaseScreen {
         for (int i = 0; i < stars.length; i++) {
             stars[i] = new Star(atlas);
         }
+        mainShip = new MainShip(atlas);
     }
 
     /**
@@ -45,6 +50,7 @@ public class GameScreen extends BaseScreen {
         for (Star star : stars) {
             star.resize(worldBounds);
         }
+        mainShip.resize(worldBounds);
     }
 
     /**
@@ -68,13 +74,15 @@ public class GameScreen extends BaseScreen {
     }
 
     @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        return super.touchDown(screenX, screenY, pointer, button);
+    public boolean touchDown(Vector2 touch, int pointer, int button) {
+        mainShip.touchDown(touch, pointer,button);
+        return false;
     }
 
     @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return super.touchUp(screenX, screenY, pointer, button);
+    public boolean touchUp(Vector2 touch, int pointer, int button) {
+        mainShip.touchUp(touch, pointer, button);
+        return false;
     }
 
     /**
@@ -84,6 +92,7 @@ public class GameScreen extends BaseScreen {
         for (Star star : stars) {
             star.update(delta);
         }
+        mainShip.update(delta);
     }
 
     /**
@@ -95,6 +104,7 @@ public class GameScreen extends BaseScreen {
         for (Star star : stars) {
             star.draw(batch);
         }
+        mainShip.draw(batch);
         batch.end();
     }
 }
