@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 import ru.game.math.Rect;
+import ru.game.utils.Regions;
 
 /**
  * СОздание и описание графического объекта = спрайт
@@ -15,6 +16,13 @@ public class Sprite extends Rect {
     protected TextureRegion[] regions;  // Текстуры объектов
     protected TextureRegion[][] regions2;  // Текстуры объектов
     protected int frame;                //
+
+    private boolean destroyed;          // Флаг для пула объектов. Можно удалить или нельзя удалять объект.
+
+    public Sprite() {
+
+    }
+
 
     public Sprite(TextureRegion region) {
         regions = new TextureRegion[1];     // Одна текстура
@@ -29,6 +37,13 @@ public class Sprite extends Rect {
     }
 
     /**
+     * Конструктор - разрезаем Атлас-текстур на несколько текстур
+     */
+    public Sprite(TextureRegion region, int rows, int cols, int frames) {
+        regions = Regions.split(region, rows, cols, frames);
+    }
+
+    /**
      * Установка ширины и высоты спрайта
      */
     public void setHeightProportion(float height) {
@@ -40,7 +55,8 @@ public class Sprite extends Rect {
     public void update(float delta) {
     }
 
-    /** Отрисовка объекта
+    /**
+     * Отрисовка объекта
      */
     public void draw(SpriteBatch batch) {
         batch.draw(
@@ -84,5 +100,26 @@ public class Sprite extends Rect {
 
     public void setScale(float scale) {
         this.scale = scale;
+    }
+
+    /**
+     * Установка флага объекта - Пометить объект на удаление. Для перемещать объект в pool
+     */
+    public void setDestroyed() {
+        destroyed = true;
+    }
+
+    /**
+     * Установка флага объекта - Пометить объект на переиспользование. Вытащить объект из pool
+     */
+    public void setUnDestroyed() {
+        destroyed = false;
+    }
+
+    /**
+     * Получить значение свойства destroyed объекта
+     */
+    public boolean isDestroyed() {
+        return destroyed;
     }
 }
