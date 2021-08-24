@@ -9,6 +9,7 @@ import ru.game.base.Sprite;
 import ru.game.math.Rect;
 import ru.game.pool.BulletPool;
 
+
 public class MainShip extends Sprite {
 
     private static final float PADDING = 0.02f;     // Отступ по границы
