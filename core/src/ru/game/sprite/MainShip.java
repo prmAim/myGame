@@ -1,6 +1,8 @@
 package ru.game.sprite;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -10,7 +12,7 @@ import ru.game.math.Rect;
 import ru.game.pool.BulletPool;
 
 public class MainShip extends Sprite {
-
+    private static final float RELOAD_INTERVAL = 0.18f;  // Интервал выстелов
     private static final float PADDING = 0.02f;     // Отступ по границы
     private final float SIZE_HEIGHT = 0.2f;         // Размер корабля по ширене экрана 2%
     private static final float V_LEN = 0.005f;      // Константа перемещения скорости корабля
@@ -32,6 +34,9 @@ public class MainShip extends Sprite {
     private Vector2 bulletPos;                              // началные координаты объета <Пуля>
     private float bulletHight;                              // Высота пули => размер объекта <Пуля>
     private int bulletDamage;                               // Урон от пули
+    private Sound sound;
+
+    private float reloadTimer;                              // таймер
 
     /**
      * Указываем текстуру объекта Корабль
@@ -45,6 +50,7 @@ public class MainShip extends Sprite {
         this.bulletHight = 0.01f;
         this.bulletDamage = 10;
         this.bulletPos = new Vector2();
+        this.sound = Gdx.audio.newSound(Gdx.files.internal("sounds/bullet.wav"));
     }
 
     /**
@@ -66,6 +72,11 @@ public class MainShip extends Sprite {
         // Если длина вектора Mouse до вектора объета больше, то двигаемся, иначе объекта становиться в точке mouse.
         pos.mulAdd(v, delta);
         checkLimitBounds();
+        reloadTimer += delta;                   // счетчик времени
+        if (reloadTimer >= RELOAD_INTERVAL){
+            shootShip();
+            reloadTimer = 0;
+        }
     }
 
     /**
@@ -165,8 +176,8 @@ public class MainShip extends Sprite {
                     stop();                     // Как только отпустили клавишу, вектор обнулился.
                 }
                 break;
-            case Input.Keys.UP:
-                shootShip();
+//            case Input.Keys.UP:
+//                shootShip();
         }
         return false;
     }
@@ -198,6 +209,7 @@ public class MainShip extends Sprite {
     public void shootShip() {
         Bullet bullet = bulletPool.obtain();
         bulletPos.set(pos.x, pos.y + getHalfHeight());
+        sound.play(0.2f);
         bullet.set(this, bulletRegion, bulletPos, bulletV, bulletHight, worldBounds, bulletDamage);
     }
 }
