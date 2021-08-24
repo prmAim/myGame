@@ -2,10 +2,12 @@ package ru.game.sprite;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 import ru.game.base.Sprite;
 import ru.game.math.Rect;
+import ru.game.pool.BulletPool;
 
 public class MainShip extends Sprite {
 
@@ -13,23 +15,36 @@ public class MainShip extends Sprite {
     private final float SIZE_HEIGHT = 0.2f;         // Размер корабля по ширене экрана 2%
     private static final float V_LEN = 0.005f;      // Константа перемещения скорости корабля
 
-    private final Vector2 V0 = new Vector2(0.5f, 0);  // Вектор скорости - шага
-    private final Vector2 v = new Vector2();               // Вектор скорости
+    private final Vector2 V0 = new Vector2(0.5f, 0);  // Вектор скорости - шага для перемещения объета <корабль>
+    private final Vector2 v = new Vector2();                // Вектор скорости
 
     private Rect worldBounds;
 
-    private boolean pressKeyLeft;
-    private boolean pressKeyRight;
-    private final int INVALID_STATUS_POINTER = -1;
+    private boolean pressKeyLeft;                           // Состояние нажатие кнопки влево
+    private boolean pressKeyRight;                          // Состояние нажатие кнопки вправо
+    private final int INVALID_STATUS_POINTER = -1;          // Констатнта, что кнопка не нажата
     private int pressLeftPointer = INVALID_STATUS_POINTER;
     private int pressRightPointer = INVALID_STATUS_POINTER;
+
+    private BulletPool bulletPool;                          // Pool объектов <Пуля>
+    private TextureRegion bulletRegion;                     // текстура объекта <Пуля>
+    private Vector2 bulletV;                                // скорость пули
+    private Vector2 bulletPos;                              // началные координаты объета <Пуля>
+    private float bulletHight;                              // Высота пули => размер объекта <Пуля>
+    private int bulletDamage;                               // Урон от пули
 
     /**
      * Указываем текстуру объекта Корабль
      */
-    public MainShip(TextureAtlas atlas) {
+    public MainShip(TextureAtlas atlas, BulletPool bulletPool) {
         // Тестура карабля, кол-во строк, кол-во колонок, кол-во фреймов
         super(atlas.findRegion("main_ship"), 1, 2, 2);
+        this.bulletPool = bulletPool;
+        this.bulletRegion = atlas.findRegion("bulletMainShip");
+        this.bulletV = new Vector2(0, 0.5f);
+        this.bulletHight = 0.01f;
+        this.bulletDamage = 10;
+        this.bulletPos = new Vector2();
     }
 
     /**
@@ -150,6 +165,8 @@ public class MainShip extends Sprite {
                     stop();                     // Как только отпустили клавишу, вектор обнулился.
                 }
                 break;
+            case Input.Keys.UP:
+                shootShip();
         }
         return false;
     }
@@ -173,5 +190,14 @@ public class MainShip extends Sprite {
      */
     private void stop() {
         v.setZero();                        // Обноление вектора
+    }
+
+    /**
+     * Метод стрельба
+     */
+    public void shootShip() {
+        Bullet bullet = bulletPool.obtain();
+        bulletPos.set(pos.x, pos.y + getHalfHeight());
+        bullet.set(this, bulletRegion, bulletPos, bulletV, bulletHight, worldBounds, bulletDamage);
     }
 }
