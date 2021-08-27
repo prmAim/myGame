@@ -1,5 +1,8 @@
 package ru.game.screen;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
@@ -26,7 +29,8 @@ public class GameScreen extends BaseScreen {
 
     private MainShip mainShip;                  // Объект летающий корабль
 
-    private MainShip mainShip;                  // Объект летающий корабль
+    private Music music;
+    private Sound laserSound;
 
     /**
      * Показать экран Меню
@@ -42,10 +46,11 @@ public class GameScreen extends BaseScreen {
         for (int i = 0; i < stars.length; i++) {
             stars[i] = new Star(atlas);
         }
-      
+        music = Gdx.audio.newMusic(Gdx.files.internal("sounds/music.mp3"));          // Вызов музыки
+        music.play();
+        laserSound = Gdx.audio.newSound(Gdx.files.internal("sounds/laser.wav"));     // Вызов звуков
         bulletPool = new BulletPool();
-        mainShip = new MainShip(atlas, bulletPool);
-
+        mainShip = new MainShip(atlas, bulletPool, laserSound);
     }
 
     /**
@@ -79,6 +84,8 @@ public class GameScreen extends BaseScreen {
         imgBg.dispose();
         atlas.dispose();
         bulletPool.dispose();
+        music.dispose();
+        laserSound.dispose();
     }
 
     @Override
@@ -90,7 +97,6 @@ public class GameScreen extends BaseScreen {
     @Override
     public boolean touchUp(Vector2 touch, int pointer, int button) {
         mainShip.touchUp(touch, pointer, button);
-
         return false;
     }
 

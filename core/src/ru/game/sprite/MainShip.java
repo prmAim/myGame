@@ -11,21 +11,19 @@ import ru.game.base.Sprite;
 import ru.game.math.Rect;
 import ru.game.pool.BulletPool;
 
-
 public class MainShip extends Sprite {
     private static final float RELOAD_INTERVAL = 0.18f;  // Интервал выстелов
-    private static final float PADDING = 0.02f;     // Отступ по границы
-    private final float SIZE_HEIGHT = 0.2f;         // Размер корабля по ширене экрана 2%
-    private static final float V_LEN = 0.005f;      // Константа перемещения скорости корабля
+    private static final float PADDING = 0.02f;          // Отступ по границы
+    private static final float V_LEN = 0.005f;           // Константа перемещения скорости корабля
 
+    private final float SIZE_HEIGHT = 0.2f;                 // Размер корабля по ширене экрана 2%
+    private final int INVALID_STATUS_POINTER = -1;          // Констатнта, что кнопка не нажата
     private final Vector2 V0 = new Vector2(0.5f, 0);  // Вектор скорости - шага для перемещения объета <корабль>
     private final Vector2 v = new Vector2();                // Вектор скорости
 
     private Rect worldBounds;
-
     private boolean pressKeyLeft;                           // Состояние нажатие кнопки влево
     private boolean pressKeyRight;                          // Состояние нажатие кнопки вправо
-    private final int INVALID_STATUS_POINTER = -1;          // Констатнта, что кнопка не нажата
     private int pressLeftPointer = INVALID_STATUS_POINTER;
     private int pressRightPointer = INVALID_STATUS_POINTER;
 
@@ -35,23 +33,22 @@ public class MainShip extends Sprite {
     private Vector2 bulletPos;                              // началные координаты объета <Пуля>
     private float bulletHight;                              // Высота пули => размер объекта <Пуля>
     private int bulletDamage;                               // Урон от пули
-    private Sound sound;
-
     private float reloadTimer;                              // таймер
+    private Sound bulletSound;                              // звуковой эффект
 
     /**
      * Указываем текстуру объекта Корабль
      */
-    public MainShip(TextureAtlas atlas, BulletPool bulletPool) {
+    public MainShip(TextureAtlas atlas, BulletPool bulletPool, Sound bulletSound) {
         // Тестура карабля, кол-во строк, кол-во колонок, кол-во фреймов
         super(atlas.findRegion("main_ship"), 1, 2, 2);
         this.bulletPool = bulletPool;
+        this.bulletSound = bulletSound;
         this.bulletRegion = atlas.findRegion("bulletMainShip");
         this.bulletV = new Vector2(0, 0.5f);
         this.bulletHight = 0.01f;
         this.bulletDamage = 10;
         this.bulletPos = new Vector2();
-        this.sound = Gdx.audio.newSound(Gdx.files.internal("sounds/bullet.wav"));
     }
 
     /**
@@ -76,7 +73,7 @@ public class MainShip extends Sprite {
         reloadTimer += delta;                   // счетчик времени
         if (reloadTimer >= RELOAD_INTERVAL){
             shootShip();
-            reloadTimer = 0;
+            reloadTimer = 0f;
         }
     }
 
@@ -210,7 +207,7 @@ public class MainShip extends Sprite {
     public void shootShip() {
         Bullet bullet = bulletPool.obtain();
         bulletPos.set(pos.x, pos.y + getHalfHeight());
-        sound.play(0.2f);
         bullet.set(this, bulletRegion, bulletPos, bulletV, bulletHight, worldBounds, bulletDamage);
+        bulletSound.play(0.2f);
     }
 }
