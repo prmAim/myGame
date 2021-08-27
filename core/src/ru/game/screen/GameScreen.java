@@ -26,6 +26,8 @@ public class GameScreen extends BaseScreen {
 
     private MainShip mainShip;                  // Объект летающий корабль
 
+    private MainShip mainShip;                  // Объект летающий корабль
+
     /**
      * Показать экран Меню
      */
@@ -40,8 +42,10 @@ public class GameScreen extends BaseScreen {
         for (int i = 0; i < stars.length; i++) {
             stars[i] = new Star(atlas);
         }
+      
         bulletPool = new BulletPool();
         mainShip = new MainShip(atlas, bulletPool);
+
     }
 
     /**
@@ -86,6 +90,7 @@ public class GameScreen extends BaseScreen {
     @Override
     public boolean touchUp(Vector2 touch, int pointer, int button) {
         mainShip.touchUp(touch, pointer, button);
+
         return false;
     }
 
