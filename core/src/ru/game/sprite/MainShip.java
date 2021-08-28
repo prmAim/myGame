@@ -1,40 +1,25 @@
 package ru.game.sprite;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
-import ru.game.base.Sprite;
+import ru.game.base.Ship;
 import ru.game.math.Rect;
 import ru.game.pool.BulletPool;
 
-public class MainShip extends Sprite {
-    private static final float RELOAD_INTERVAL = 0.18f;  // Интервал выстелов
+public class MainShip extends Ship {
+    private static final float RELOAD_INTERVAL = 0.38f;  // Интервал выстелов
     private static final float PADDING = 0.02f;          // Отступ по границы
-    private static final float V_LEN = 0.005f;           // Константа перемещения скорости корабля
 
     private final float SIZE_HEIGHT = 0.2f;                 // Размер корабля по ширене экрана 2%
     private final int INVALID_STATUS_POINTER = -1;          // Констатнта, что кнопка не нажата
-    private final Vector2 V0 = new Vector2(0.5f, 0);  // Вектор скорости - шага для перемещения объета <корабль>
-    private final Vector2 v = new Vector2();                // Вектор скорости
 
-    private Rect worldBounds;
     private boolean pressKeyLeft;                           // Состояние нажатие кнопки влево
     private boolean pressKeyRight;                          // Состояние нажатие кнопки вправо
     private int pressLeftPointer = INVALID_STATUS_POINTER;
     private int pressRightPointer = INVALID_STATUS_POINTER;
-
-    private BulletPool bulletPool;                          // Pool объектов <Пуля>
-    private TextureRegion bulletRegion;                     // текстура объекта <Пуля>
-    private Vector2 bulletV;                                // скорость пули
-    private Vector2 bulletPos;                              // началные координаты объета <Пуля>
-    private float bulletHight;                              // Высота пули => размер объекта <Пуля>
-    private int bulletDamage;                               // Урон от пули
-    private float reloadTimer;                              // таймер
-    private Sound bulletSound;                              // звуковой эффект
 
     /**
      * Указываем текстуру объекта Корабль
@@ -45,10 +30,13 @@ public class MainShip extends Sprite {
         this.bulletPool = bulletPool;
         this.bulletSound = bulletSound;
         this.bulletRegion = atlas.findRegion("bulletMainShip");
-        this.bulletV = new Vector2(0, 0.5f);
-        this.bulletHight = 0.01f;
+        bulletV.set(0f, 0.5f);
+        v0.set(0.5f, 0f);
+        this.bulletHeight = 0.01f;
         this.bulletDamage = 10;
         this.bulletPos = new Vector2();
+        reloadInterval = RELOAD_INTERVAL;
+        hp = 100;
     }
 
     /**
@@ -67,14 +55,14 @@ public class MainShip extends Sprite {
      */
     @Override
     public void update(float delta) {
-        // Если длина вектора Mouse до вектора объета больше, то двигаемся, иначе объекта становиться в точке mouse.
-        pos.mulAdd(v, delta);
+        super.update(delta);
         checkLimitBounds();
         reloadTimer += delta;                   // счетчик времени
-        if (reloadTimer >= RELOAD_INTERVAL){
+        if (reloadTimer >= reloadInterval){
             shootShip();
             reloadTimer = 0f;
         }
+        bulletPos.set(pos.x, pos.y + getHalfHeight());
     }
 
     /**
@@ -184,14 +172,14 @@ public class MainShip extends Sprite {
      * Движение вправо
      */
     private void moveRight() {
-        v.set(V0);
+        v.set(v0);
     }
 
     /**
      * Движение влево
      */
     private void moveLeft() {
-        v.set(V0).rotateDeg(180);          // поворот вектора на 180 град.
+        v.set(v0).rotateDeg(180);          // поворот вектора на 180 град.
     }
 
     /**
@@ -201,13 +189,5 @@ public class MainShip extends Sprite {
         v.setZero();                        // Обноление вектора
     }
 
-    /**
-     * Метод стрельба
-     */
-    public void shootShip() {
-        Bullet bullet = bulletPool.obtain();
-        bulletPos.set(pos.x, pos.y + getHalfHeight());
-        bullet.set(this, bulletRegion, bulletPos, bulletV, bulletHight, worldBounds, bulletDamage);
-        bulletSound.play(0.2f);
-    }
+
 }

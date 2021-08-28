@@ -10,9 +10,12 @@ import com.badlogic.gdx.math.Vector2;
 import ru.game.base.BaseScreen;
 import ru.game.math.Rect;
 import ru.game.pool.BulletPool;
+import ru.game.pool.EnemyPool;
 import ru.game.sprite.Background;
+import ru.game.sprite.EnemyShip;
 import ru.game.sprite.MainShip;
 import ru.game.sprite.Star;
+import ru.game.utils.EnemyEmitter;
 
 /**
  * Класс потомом <Окно Игры>
@@ -26,11 +29,15 @@ public class GameScreen extends BaseScreen {
     private Background spiteBackground;         // объект задний фон
     private Star[] stars;                       // массив объектов Звезда
     private BulletPool bulletPool;              // pool объектов <Пуля>
+    private EnemyPool enemyPool;                // poll объектов <Корабль>
 
     private MainShip mainShip;                  // Объект летающий корабль
 
     private Music music;
     private Sound laserSound;
+    private Sound bulletSound;
+
+    private EnemyEmitter enemyEmitter;          // создание вражеского корабля
 
     /**
      * Показать экран Меню
@@ -46,12 +53,17 @@ public class GameScreen extends BaseScreen {
         for (int i = 0; i < stars.length; i++) {
             stars[i] = new Star(atlas);
         }
-        music = Gdx.audio.newMusic(Gdx.files.internal("sounds/music.mp3"));          // Вызов музыки
-        music.play();
-        laserSound = Gdx.audio.newSound(Gdx.files.internal("sounds/laser.wav"));     // Вызов звуков
+        laserSound = Gdx.audio.newSound(Gdx.files.internal("sounds/laser.wav"));     // Вызов звуков выстрелов
+        bulletSound = Gdx.audio.newSound(Gdx.files.internal("sounds/bullet.wav"));   // Вызов звуков выстрелов
+
         bulletPool = new BulletPool();
         mainShip = new MainShip(atlas, bulletPool, laserSound);
-    }
+        enemyPool = new EnemyPool(worldBounds, bulletPool);
+        enemyEmitter = new EnemyEmitter(enemyPool, worldBounds, bulletSound, atlas);
+
+        music = Gdx.audio.newMusic(Gdx.files.internal("sounds/music.mp3"));          // Вызов фоновой музыки
+        music.play();
+     }
 
     /**
      * Переопределяем метод для того, чтобы объект находился к координатной сетке (а не координаты LBX)
@@ -72,6 +84,8 @@ public class GameScreen extends BaseScreen {
     public void render(float delta) {
         super.render(delta);
         update(delta);
+        checkCollisions();
+        freeAllDestroyed();
         draw();
     }
 
@@ -84,8 +98,10 @@ public class GameScreen extends BaseScreen {
         imgBg.dispose();
         atlas.dispose();
         bulletPool.dispose();
+        enemyPool.dispose();
         music.dispose();
         laserSound.dispose();
+        bulletSound.dispose();
     }
 
     @Override
@@ -122,6 +138,8 @@ public class GameScreen extends BaseScreen {
         mainShip.update(delta);
         freeAllDestroyed();
         bulletPool.updateActiveSprites(delta);
+        enemyPool.updateActiveSprites(delta);
+        enemyEmitter.generateShip(delta);
     }
 
     /**
@@ -135,6 +153,7 @@ public class GameScreen extends BaseScreen {
         }
         mainShip.draw(batch);
         bulletPool.drawActiveSprites(batch);
+        enemyPool.drawActiveSprites(batch);
         batch.end();
     }
 
@@ -143,5 +162,12 @@ public class GameScreen extends BaseScreen {
      */
     private void freeAllDestroyed(){
         bulletPool.freeAllDestroyedActiveSprites();
+        enemyPool.freeAllDestroyedActiveSprites();
+    }
+    /**
+     * Проверка на взаимодействие объектов
+     */
+    public void checkCollisions(){
+
     }
 }

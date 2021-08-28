@@ -17,7 +17,7 @@ import ru.game.math.Rect;
 public class BaseScreen implements Screen, InputProcessor {
     protected SpriteBatch batch;
     private Rect screenBounds;      // координаты экрана в px
-    private Rect worldBounds;       // переход на "мировую" систему координат. экран 1f / 1f * аспект (высота/ширина). Переход через матрицу проекции
+    protected Rect worldBounds;       // переход на "мировую" систему координат. экран 1f / 1f * аспект (высота/ширина). Переход через матрицу проекции
     private Rect glBounds;          // итоговая координатная сетка. Переход через матрицу проекции
 
     private Matrix4 worldToGl;      // Матрица проекции. для перехода из "мировой" системы в итоговую сетку.
