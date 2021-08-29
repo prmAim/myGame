@@ -7,19 +7,22 @@ import com.badlogic.gdx.math.Vector2;
 import ru.game.base.Ship;
 import ru.game.math.Rect;
 import ru.game.pool.BulletPool;
+import ru.game.pool.ExplosionPool;
 
 public class EnemyShip extends Ship {
 
-    public EnemyShip(Rect worldBounds, BulletPool bulletPool) {
+    public EnemyShip(Rect worldBounds, BulletPool bulletPool, ExplosionPool explosionPool) {
         super();
         this.worldBounds = worldBounds;
         this.bulletPool = bulletPool;
+        this.explosionPool = explosionPool;
     }
 
     @Override
     public void update(float delta) {
         super.update(delta);
-        if (getTop() < worldBounds.getTop()){       // усколение объекта корабль, что бы они появились быстрее
+        bulletPos.set(pos.x, pos.y - getHalfHeight());
+        if (getTop() < worldBounds.getTop()) {       // усколение объекта корабль, что бы они появились быстрее
             v.set(v0);
         } else {
             reloadTimer = reloadInterval * 0.8f;    // ускоряем таймер, что бы стрельба началась раньше
@@ -27,7 +30,6 @@ public class EnemyShip extends Ship {
         if (getBottom() < worldBounds.getBottom()) {     // если корабль перешел нижную границу экрана, то его переносим в <свободный пул>
             isDestroyed();
         }
-        bulletPos.set(pos.x, pos.y - getHalfHeight());
     }
 
     /**
@@ -56,6 +58,22 @@ public class EnemyShip extends Ship {
         setHeightProportion(height);
         this.hp = hp;
         v.set(0f, -0.4f);
-        bulletPos.set(pos.x, pos.y + getHalfHeight());
+    }
+
+    /**
+     * Проверка на пересечение спрайта <Пуля> и <Корабля>
+     */
+    @Override
+    public boolean isBulletCollision(Bullet bullet) {
+        return !(
+                bullet.getRight() < getLeft() || bullet.getLeft() > getRight() || bullet.getBottom() > getTop() ||
+                        bullet.getTop() < pos.y     // Пуля добирается до центра корабля
+        );
+    }
+
+    @Override
+    public void setDestroyed() {
+        super.setDestroyed();
+        reloadTimer = 0f;
     }
 }

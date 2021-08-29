@@ -15,7 +15,7 @@ public abstract class SpritePool<T extends Sprite> {
     protected abstract T newSprite();
 
     /**
-     * Управление полом объектов. Перемещение объекта между <свободным pool> и <активным pool>
+     * Управление pool объектов. Перемещение объекта между <свободным pool> и <активным pool>
      */
     public T obtain() {
         T sprite;
@@ -79,7 +79,7 @@ public abstract class SpritePool<T extends Sprite> {
     /**
      * Освобождение ресурсов
      */
-    public void dispose(){
+    public void dispose() {
         activeSprits.clear();
         freeSprits.clear();
     }

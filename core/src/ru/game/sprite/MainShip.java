@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import ru.game.base.Ship;
 import ru.game.math.Rect;
 import ru.game.pool.BulletPool;
+import ru.game.pool.ExplosionPool;
 
 public class MainShip extends Ship {
     private static final float RELOAD_INTERVAL = 0.38f;  // Интервал выстелов
@@ -24,19 +25,20 @@ public class MainShip extends Ship {
     /**
      * Указываем текстуру объекта Корабль
      */
-    public MainShip(TextureAtlas atlas, BulletPool bulletPool, Sound bulletSound) {
+    public MainShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool, Sound bulletSound) {
         // Тестура карабля, кол-во строк, кол-во колонок, кол-во фреймов
         super(atlas.findRegion("main_ship"), 1, 2, 2);
         this.bulletPool = bulletPool;
+        this.explosionPool = explosionPool;
         this.bulletSound = bulletSound;
         this.bulletRegion = atlas.findRegion("bulletMainShip");
         bulletV.set(0f, 0.5f);
         v0.set(0.5f, 0f);
         this.bulletHeight = 0.01f;
-        this.bulletDamage = 10;
+        this.bulletDamage = 1;
         this.bulletPos = new Vector2();
         reloadInterval = RELOAD_INTERVAL;
-        hp = 100;
+        hp = 1;
     }
 
     /**
@@ -189,5 +191,12 @@ public class MainShip extends Ship {
         v.setZero();                        // Обноление вектора
     }
 
-
+    /**
+     * Проверка на перекрещивание объекта <Пуля> и  <Корабль>
+     */
+    @Override
+    public boolean isBulletCollision(Bullet bullet){
+        return !(bullet.getLeft() > getRight() || bullet.getRight() < getLeft() || bullet.getBottom() > pos.y ||
+                bullet.getTop() < getBottom());
+    }
 }
