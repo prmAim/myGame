@@ -17,6 +17,8 @@ public class MainShip extends Ship {
     private final float SIZE_HEIGHT = 0.2f;                 // Размер корабля по ширене экрана 2%
     private final int INVALID_STATUS_POINTER = -1;          // Констатнта, что кнопка не нажата
 
+    private final int DEFAULT_HP = 100;                       // HP
+
     private boolean pressKeyLeft;                           // Состояние нажатие кнопки влево
     private boolean pressKeyRight;                          // Состояние нажатие кнопки вправо
     private int pressLeftPointer = INVALID_STATUS_POINTER;
@@ -38,7 +40,17 @@ public class MainShip extends Ship {
         this.bulletDamage = 1;
         this.bulletPos = new Vector2();
         reloadInterval = RELOAD_INTERVAL;
-        hp = 1;
+        hp = DEFAULT_HP;
+    }
+
+    /**
+     * Вернуть значение объекта корабль в значениям по-умолчанию
+     */
+    public void setDefaultSetup() {
+        hp = DEFAULT_HP;
+        pos.set(0f, 0f);
+        setBottom(worldBounds.getBottom() + PADDING);
+        setUnDestroyed();
     }
 
     /**
@@ -60,7 +72,7 @@ public class MainShip extends Ship {
         super.update(delta);
         checkLimitBounds();
         reloadTimer += delta;                   // счетчик времени
-        if (reloadTimer >= reloadInterval){
+        if (reloadTimer >= reloadInterval) {
             shootShip();
             reloadTimer = 0f;
         }
@@ -195,7 +207,7 @@ public class MainShip extends Ship {
      * Проверка на перекрещивание объекта <Пуля> и  <Корабль>
      */
     @Override
-    public boolean isBulletCollision(Bullet bullet){
+    public boolean isBulletCollision(Bullet bullet) {
         return !(bullet.getLeft() > getRight() || bullet.getRight() < getLeft() || bullet.getBottom() > pos.y ||
                 bullet.getTop() < getBottom());
     }

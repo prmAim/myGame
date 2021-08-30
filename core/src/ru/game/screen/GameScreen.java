@@ -17,7 +17,9 @@ import ru.game.pool.ExplosionPool;
 import ru.game.sprite.Background;
 import ru.game.sprite.Bullet;
 import ru.game.sprite.EnemyShip;
+import ru.game.sprite.GameOverButton;
 import ru.game.sprite.MainShip;
+import ru.game.sprite.NewGameButton;
 import ru.game.sprite.Star;
 import ru.game.utils.EnemyEmitter;
 
@@ -44,6 +46,8 @@ public class GameScreen extends BaseScreen {
     private Sound explosionSound;
 
     private EnemyEmitter enemyEmitter;          // создание вражеского корабля
+    private GameOverButton gameOverButton;      // создание спрайта <Конец игры>
+    private NewGameButton newGameBotton;        // создание спрайта <Начало игры>
 
     /**
      * Показать экран Меню
@@ -69,6 +73,8 @@ public class GameScreen extends BaseScreen {
         enemyPool = new EnemyPool(worldBounds, bulletPool, explosionPool);
         enemyEmitter = new EnemyEmitter(enemyPool, worldBounds, bulletSound, atlas);
 
+        gameOverButton = new GameOverButton(atlas);
+        newGameBotton = new NewGameButton(atlas, bulletPool, enemyPool, mainShip);
         music = Gdx.audio.newMusic(Gdx.files.internal("sounds/music.mp3"));          // Вызов фоновой музыки
         music.play();
     }
@@ -83,6 +89,8 @@ public class GameScreen extends BaseScreen {
             star.resize(worldBounds);
         }
         mainShip.resize(worldBounds);
+        gameOverButton.resize(worldBounds);
+        newGameBotton.resize(worldBounds);
     }
 
     /**
@@ -117,12 +125,14 @@ public class GameScreen extends BaseScreen {
     @Override
     public boolean touchDown(Vector2 touch, int pointer, int button) {
         mainShip.touchDown(touch, pointer, button);
+        newGameBotton.touchDown(touch, pointer, button);
         return false;
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer, int button) {
         mainShip.touchUp(touch, pointer, button);
+        newGameBotton.touchUp(touch, pointer, button);
         return false;
     }
 
@@ -167,6 +177,9 @@ public class GameScreen extends BaseScreen {
             mainShip.draw(batch);
             bulletPool.drawActiveSprites(batch);
             enemyPool.drawActiveSprites(batch);
+        } else {
+            newGameBotton.draw(batch);
+            gameOverButton.draw(batch);
         }
         explosionPool.drawActiveSprites(batch);
         batch.end();

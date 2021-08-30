@@ -66,6 +66,18 @@ public abstract class SpritePool<T extends Sprite> {
     }
 
     /**
+     * Освобождаем все объеты из <активным pool> в <свободный pool>
+     */
+    public void freeAllDestroyedAllSprites() {
+        for (int i = 0; i < activeSprits.size(); i++) {
+            T sprite = activeSprits.get(i);
+                freeSprit(sprite);
+                i--;                        // так как сместились объеты в Листе, то нужно снова проверить этот
+                sprite.setUnDestroyed();    // меняем флаг
+        }
+    }
+
+    /**
      * Перемещение объекта из <активным pool> в <свободный pool>
      */
     public void freeSprit(T spite) {
