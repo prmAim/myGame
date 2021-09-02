@@ -13,6 +13,7 @@ import ru.game.pool.ExplosionPool;
 public class MainShip extends Ship {
     private static final float RELOAD_INTERVAL = 0.38f;  // Интервал выстелов
     private static final float PADDING = 0.02f;          // Отступ по границы
+    private static final int HP_DEFAULT = 1;
 
     private final float SIZE_HEIGHT = 0.2f;                 // Размер корабля по ширене экрана 2%
     private final int INVALID_STATUS_POINTER = -1;          // Констатнта, что кнопка не нажата
@@ -38,7 +39,24 @@ public class MainShip extends Ship {
         this.bulletDamage = 1;
         this.bulletPos = new Vector2();
         reloadInterval = RELOAD_INTERVAL;
-        hp = 1;
+        hp = HP_DEFAULT;
+    }
+
+    /**
+     * Вернуть значение объекта корабль в значениям по-умолчанию
+     */
+    public void startNewGame() {
+        // сбросить все флаги
+        pressKeyLeft = false;
+        pressKeyRight = false;
+        pressLeftPointer = INVALID_STATUS_POINTER;
+        pressRightPointer = INVALID_STATUS_POINTER;
+        stop();
+        // выравнивание по центру
+        this.pos.x = worldBounds.pos.x;
+
+        hp = HP_DEFAULT;
+        setUnDestroyed();
     }
 
     /**
@@ -60,7 +78,7 @@ public class MainShip extends Ship {
         super.update(delta);
         checkLimitBounds();
         reloadTimer += delta;                   // счетчик времени
-        if (reloadTimer >= reloadInterval){
+        if (reloadTimer >= reloadInterval) {
             shootShip();
             reloadTimer = 0f;
         }
@@ -195,7 +213,7 @@ public class MainShip extends Ship {
      * Проверка на перекрещивание объекта <Пуля> и  <Корабль>
      */
     @Override
-    public boolean isBulletCollision(Bullet bullet){
+    public boolean isBulletCollision(Bullet bullet) {
         return !(bullet.getLeft() > getRight() || bullet.getRight() < getLeft() || bullet.getBottom() > pos.y ||
                 bullet.getTop() < getBottom());
     }

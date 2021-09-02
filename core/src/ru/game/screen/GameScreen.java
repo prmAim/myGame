@@ -17,7 +17,9 @@ import ru.game.pool.ExplosionPool;
 import ru.game.sprite.Background;
 import ru.game.sprite.Bullet;
 import ru.game.sprite.EnemyShip;
+import ru.game.sprite.GameOver;
 import ru.game.sprite.MainShip;
+import ru.game.sprite.NewGameButton;
 import ru.game.sprite.Star;
 import ru.game.utils.EnemyEmitter;
 
@@ -45,6 +47,9 @@ public class GameScreen extends BaseScreen {
 
     private EnemyEmitter enemyEmitter;          // создание вражеского корабля
 
+    private GameOver gameOver;                  // Сообщение <Конец Игры>
+    private NewGameButton newGameButton;        // Кнопка <Начала игры>
+
     /**
      * Показать экран Меню
      */
@@ -69,6 +74,8 @@ public class GameScreen extends BaseScreen {
         enemyPool = new EnemyPool(worldBounds, bulletPool, explosionPool);
         enemyEmitter = new EnemyEmitter(enemyPool, worldBounds, bulletSound, atlas);
 
+        gameOver = new GameOver(atlas);
+        newGameButton = new NewGameButton(atlas, this);
         music = Gdx.audio.newMusic(Gdx.files.internal("sounds/music.mp3"));          // Вызов фоновой музыки
         music.play();
     }
@@ -83,6 +90,8 @@ public class GameScreen extends BaseScreen {
             star.resize(worldBounds);
         }
         mainShip.resize(worldBounds);
+        gameOver.resize(worldBounds);
+        newGameButton.resize(worldBounds);
     }
 
     /**
@@ -116,13 +125,21 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer, int button) {
-        mainShip.touchDown(touch, pointer, button);
+        if (mainShip.isDestroyed()) {
+            newGameButton.touchDown(touch, pointer, button);
+        } else {
+            mainShip.touchDown(touch, pointer, button);
+        }
         return false;
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer, int button) {
-        mainShip.touchUp(touch, pointer, button);
+        if (mainShip.isDestroyed()) {
+            newGameButton.touchUp(touch, pointer, button);
+        } else {
+            mainShip.touchUp(touch, pointer, button);
+        }
         return false;
     }
 
@@ -167,6 +184,12 @@ public class GameScreen extends BaseScreen {
             mainShip.draw(batch);
             bulletPool.drawActiveSprites(batch);
             enemyPool.drawActiveSprites(batch);
+        } else {
+            gameOver.draw(batch);
+            // все взрывы проигрались, то показываем новую кнопку
+            if (explosionPool.getActiveSprits().isEmpty()) {
+                newGameButton.draw(batch);
+            }
         }
         explosionPool.drawActiveSprites(batch);
         batch.end();
@@ -220,5 +243,14 @@ public class GameScreen extends BaseScreen {
                 bullet.setDestroyed();
             }
         }
+    }
+
+    /**
+     * Привести игру к заводским настройкам
+     */
+    public void startNewGame() {
+        bulletPool.freeAllActiveSprites();
+        enemyPool.freeAllActiveSprites();
+        mainShip.startNewGame();
     }
 }

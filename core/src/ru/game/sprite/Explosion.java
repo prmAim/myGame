@@ -19,6 +19,7 @@ public class Explosion extends Sprite {
     public Explosion(TextureAtlas atlas, Sound explosionSound) {
         super(atlas.findRegion("explosion"), 9, 9, 74); // подключение текстуры
         this.explosionSound = explosionSound;
+        frame = 0;
     }
 
     /**

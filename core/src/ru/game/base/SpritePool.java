@@ -52,7 +52,7 @@ public abstract class SpritePool<T extends Sprite> {
     }
 
     /**
-     * Освобождаем все объеты из <активным pool> в <свободный pool>
+     * Освобождаем объеты, которые пометили, как не используемые, из <активным pool> в <свободный pool>
      */
     public void freeAllDestroyedActiveSprites() {
         for (int i = 0; i < activeSprits.size(); i++) {
@@ -63,6 +63,14 @@ public abstract class SpritePool<T extends Sprite> {
                 sprite.setUnDestroyed();    // меняем флаг
             }
         }
+    }
+
+    /**
+     * Освобождаем ВСЕ объеты из <активным pool> в <свободный pool>
+     */
+    public void freeAllActiveSprites(){
+        freeSprits.addAll(activeSprits);
+        activeSprits.clear();
     }
 
     /**
