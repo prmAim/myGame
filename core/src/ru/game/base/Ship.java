@@ -110,9 +110,16 @@ public abstract class Ship extends Sprite {
         explosion.set(pos, getHeight());
     }
 
+    /**
+     * Уничтожение корабля
+     */
     @Override
     public void setDestroyed() {
         super.setDestroyed();
         isStartBoom();              // при уничтожении объета <Корабль> вызываем взрыв
+    }
+
+    public int getHp() {
+        return hp;
     }
 }

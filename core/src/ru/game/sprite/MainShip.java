@@ -13,7 +13,7 @@ import ru.game.pool.ExplosionPool;
 public class MainShip extends Ship {
     private static final float RELOAD_INTERVAL = 0.38f;  // Интервал выстелов
     private static final float PADDING = 0.02f;          // Отступ по границы
-    private static final int HP_DEFAULT = 1;
+    private static final int HP_DEFAULT = 100;
 
     private final float SIZE_HEIGHT = 0.2f;                 // Размер корабля по ширене экрана 2%
     private final int INVALID_STATUS_POINTER = -1;          // Констатнта, что кнопка не нажата
@@ -217,4 +217,6 @@ public class MainShip extends Ship {
         return !(bullet.getLeft() > getRight() || bullet.getRight() < getLeft() || bullet.getBottom() > pos.y ||
                 bullet.getTop() < getBottom());
     }
+
+
 }

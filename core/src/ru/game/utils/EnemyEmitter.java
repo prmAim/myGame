@@ -12,6 +12,7 @@ import ru.game.sprite.EnemyShip;
 
 public class EnemyEmitter {
     private static final float GENERATE_INTERVAL = 4f;              // МАЛЕНЬКИЙ. Частота создания корабля
+    private static final int COUNT_FRAGS_TO_LEVEL = 5;             // Кол-во кораблей для перехода на следующий уровень
 
     private static final float ENEMY_SMALL_HEIGHT = 0.1f;           // МАЛЕНЬКИЙ. Размер корабля
     private static final float ENEMY_SMALL_RELOAD_INTERVAL = 3f;    // МАЛЕНЬКИЙ. частота выстрелов
@@ -51,6 +52,8 @@ public class EnemyEmitter {
 
     private float genereteTimer;
 
+    private int level;
+
     public EnemyEmitter(EnemyPool enemyPool, Rect worldBounds, Sound bulletSound, TextureAtlas atlas) {
         this.enemyPool = enemyPool;
         this.worldBounds = worldBounds;
@@ -64,7 +67,8 @@ public class EnemyEmitter {
     /**
      * Метод генерации кораблей
      */
-    public void generateShip(float delta) {
+    public void generateShip(float delta, int frags) {
+        level = frags / COUNT_FRAGS_TO_LEVEL + 1;
         genereteTimer += delta;
         if (genereteTimer >= GENERATE_INTERVAL) {
             genereteTimer = 0f;
@@ -77,11 +81,11 @@ public class EnemyEmitter {
                         bulletRegion,                           // Текстура пули
                         enemySmallBulletV,                      // Скорость пули
                         ENEMY_SMALL_BULLET_HEIGHT,              // Размер пули
-                        ENEMY_SMALL_BULLET_DAMAGE,              // урон от пули
+                        ENEMY_SMALL_BULLET_DAMAGE * level,              // урон от пули
                         bulletSound,                            // Звук пули
                         ENEMY_SMALL_RELOAD_INTERVAL,            // частота выстрелов
                         ENEMY_SMALL_HEIGHT,                     // Размер корабля
-                        ENEMY_SMALL_HP                          // Здоровье корабля
+                        ENEMY_SMALL_HP * level              // Здоровье корабля
                 );
             } else if (typeShip < 0.8f) {
                 enemyShip.set(
@@ -90,11 +94,11 @@ public class EnemyEmitter {
                         bulletRegion,                            // Текстура пули
                         enemyMediumBulletV,                      // Скорость пули
                         ENEMY_MEDIUM_BULLET_HEIGHT,              // Размер пули
-                        ENEMY_MEDIUM_BULLET_DAMAGE,              // урон от пули
+                        ENEMY_MEDIUM_BULLET_DAMAGE * level,              // урон от пули
                         bulletSound,                             // Звук пули
                         ENEMY_MEDIUM_RELOAD_INTERVAL,            // частота выстрелов
                         ENEMY_MEDIUM_HEIGHT,                     // Размер корабля
-                        ENEMY_MEDIUM_HP                          // Здоровье корабля
+                        ENEMY_MEDIUM_HP * level              // Здоровье корабля
                 );
             } else {
                 enemyShip.set(
@@ -103,11 +107,11 @@ public class EnemyEmitter {
                         bulletRegion,                         // Текстура пули
                         enemyBigBulletV,                      // Скорость пули
                         ENEMY_BIG_BULLET_HEIGHT,              // Размер пули
-                        ENEMY_BIG_BULLET_DAMAGE,              // урон от пули
+                        ENEMY_BIG_BULLET_DAMAGE * level,  // урон от пули
                         bulletSound,                          // Звук пули
                         ENEMY_BIG_RELOAD_INTERVAL,            // частота выстрелов
                         ENEMY_BIG_HEIGHT,                     // Размер корабля
-                        ENEMY_BIG_HP                          // Здоровье корабля
+                        ENEMY_BIG_HP * level              // Здоровье корабля
                 );
             }
             // устанавливаем положение корабля
@@ -115,5 +119,9 @@ public class EnemyEmitter {
             enemyShip.setBottom(worldBounds.getTop());
         }
 
+    }
+
+    public int getLevel() {
+        return level;
     }
 }

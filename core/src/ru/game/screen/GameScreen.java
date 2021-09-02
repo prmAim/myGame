@@ -6,10 +6,12 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Align;
 
 import java.util.List;
 
 import ru.game.base.BaseScreen;
+import ru.game.base.Font;
 import ru.game.math.Rect;
 import ru.game.pool.BulletPool;
 import ru.game.pool.EnemyPool;
@@ -27,10 +29,14 @@ import ru.game.utils.EnemyEmitter;
  * Класс потомом <Окно Игры>
  */
 public class GameScreen extends BaseScreen {
-    private final int COUNT_STARS = 128;        // кол-во звезд
+    private static final int COUNT_STARS = 128;    // кол-во звезд
+    private static final String FRAGS = "Frags: "; // Для вывода данных
+    private static final String HP = "HP: "; // Для вывода данных
+    private static final String LEVEL = "Level: "; // Для вывода данных
+    private static final float PADDING = 0.01f;    // Отступ
 
-    private Texture imgBg;                      // Текстура заднего фона
-    private TextureAtlas atlas;
+    private Texture imgBg;                          // Текстура заднего фона
+    private TextureAtlas atlas;                     // Сборник тексутр
 
     private Background spiteBackground;         // объект задний фон
     private Star[] stars;                       // массив объектов Звезда
@@ -49,6 +55,12 @@ public class GameScreen extends BaseScreen {
 
     private GameOver gameOver;                  // Сообщение <Конец Игры>
     private NewGameButton newGameButton;        // Кнопка <Начала игры>
+
+    private int frags;                          // кол-во убитых врагов
+    private StringBuilder sbFrags;              // Объект для изменения строки <Убитых кораблей>
+    private StringBuilder sbHp;                 // Объект для изменения строки <Размер жизни>
+    private StringBuilder sbLevel;              // Объект для изменения строки <Уровень>
+    private Font font;                          // Объект для отрисовки строковых данных в графический вид
 
     /**
      * Показать экран Меню
@@ -76,6 +88,14 @@ public class GameScreen extends BaseScreen {
 
         gameOver = new GameOver(atlas);
         newGameButton = new NewGameButton(atlas, this);
+
+        frags = 0;
+        sbFrags = new StringBuilder();
+        sbLevel = new StringBuilder();
+        sbHp = new StringBuilder();
+        font = new Font("font/font.fnt", "font/font.png");      // текстуры букв
+        font.setSize(0.02f);                                                    // размер букв
+
         music = Gdx.audio.newMusic(Gdx.files.internal("sounds/music.mp3"));          // Вызов фоновой музыки
         music.play();
     }
@@ -167,7 +187,7 @@ public class GameScreen extends BaseScreen {
             mainShip.update(delta);
             bulletPool.updateActiveSprites(delta);
             enemyPool.updateActiveSprites(delta);
-            enemyEmitter.generateShip(delta);
+            enemyEmitter.generateShip(delta, frags);
         }
     }
 
@@ -192,6 +212,7 @@ public class GameScreen extends BaseScreen {
             }
         }
         explosionPool.drawActiveSprites(batch);
+        printInfo();
         batch.end();
     }
 
@@ -236,6 +257,9 @@ public class GameScreen extends BaseScreen {
                 if (enemyShip.isBulletCollision(bullet)) {
                     enemyShip.setDamage(bullet.getDamage());
                     bullet.setDestroyed();
+                    if (enemyShip.isDestroyed()) {
+                        frags++;
+                    }
                 }
             }
             if (bullet.getOwner() != mainShip && mainShip.isBulletCollision(bullet)) {
@@ -252,5 +276,18 @@ public class GameScreen extends BaseScreen {
         bulletPool.freeAllActiveSprites();
         enemyPool.freeAllActiveSprites();
         mainShip.startNewGame();
+        frags = 0;
+    }
+
+    /**
+     * Вывод данных для подсчета убитых кораблей
+     */
+    private void printInfo() {
+        sbFrags.setLength(0);  // сброс строки
+        font.draw(batch, sbFrags.append(FRAGS).append(frags), worldBounds.getLeft() + PADDING, worldBounds.getTop() - PADDING);
+        sbHp.setLength(0);
+        font.draw(batch, sbHp.append(HP).append(mainShip.getHp()), worldBounds.pos.x, worldBounds.getTop() - PADDING, Align.center);
+        sbLevel.setLength(0);
+        font.draw(batch, sbLevel.append(LEVEL).append(enemyEmitter.getLevel()), worldBounds.getRight() - PADDING, worldBounds.getTop() - PADDING, Align.right);
     }
 }
