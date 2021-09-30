@@ -13,16 +13,19 @@ import java.util.List;
 import ru.game.base.BaseScreen;
 import ru.game.base.Font;
 import ru.game.math.Rect;
+import ru.game.pool.BonusPool;
 import ru.game.pool.BulletPool;
 import ru.game.pool.EnemyPool;
 import ru.game.pool.ExplosionPool;
 import ru.game.sprite.Background;
+import ru.game.sprite.Bonus;
 import ru.game.sprite.Bullet;
 import ru.game.sprite.EnemyShip;
 import ru.game.sprite.GameOver;
 import ru.game.sprite.MainShip;
 import ru.game.sprite.NewGameButton;
 import ru.game.sprite.Star;
+import ru.game.utils.BonusEmitter;
 import ru.game.utils.EnemyEmitter;
 
 /**
@@ -37,11 +40,13 @@ public class GameScreen extends BaseScreen {
 
     private Texture imgBg;                          // Текстура заднего фона
     private TextureAtlas atlas;                     // Сборник тексутр
+    private TextureAtlas atlasBonus;                // Сборник тексутр
 
     private Background spiteBackground;         // объект задний фон
     private Star[] stars;                       // массив объектов Звезда
     private BulletPool bulletPool;              // pool объектов <Пуля>
     private EnemyPool enemyPool;                // pool объектов <Корабль>
+    private BonusPool bonusPool;                // pool объектов <Бонус>
     private ExplosionPool explosionPool;        // pool объектов <Взрыв>
 
     private MainShip mainShip;                  // Объект летающий корабль
@@ -52,6 +57,7 @@ public class GameScreen extends BaseScreen {
     private Sound explosionSound;
 
     private EnemyEmitter enemyEmitter;          // создание вражеского корабля
+    private BonusEmitter bonusEmitter;          // создание объекта <Бонус>
 
     private GameOver gameOver;                  // Сообщение <Конец Игры>
     private NewGameButton newGameButton;        // Кнопка <Начала игры>
@@ -71,6 +77,7 @@ public class GameScreen extends BaseScreen {
         imgBg = new Texture("textures/bg.png");
         spiteBackground = new Background(imgBg);               // splite для фоновой картинки с тестурой
 
+        atlasBonus = new TextureAtlas("textures/bonus.tpack");  // Подключение текстур атласа.
         atlas = new TextureAtlas("textures/mainAtlas.tpack");   // Подключение текстур атласа.
         stars = new Star[COUNT_STARS];
         for (int i = 0; i < stars.length; i++) {
@@ -85,6 +92,8 @@ public class GameScreen extends BaseScreen {
         mainShip = new MainShip(atlas, bulletPool, explosionPool, laserSound);
         enemyPool = new EnemyPool(worldBounds, bulletPool, explosionPool);
         enemyEmitter = new EnemyEmitter(enemyPool, worldBounds, bulletSound, atlas);
+        bonusPool = new BonusPool(worldBounds, explosionPool);
+        bonusEmitter = new BonusEmitter(bonusPool, worldBounds, atlasBonus, mainShip);
 
         gameOver = new GameOver(atlas);
         newGameButton = new NewGameButton(atlas, this);
@@ -134,9 +143,11 @@ public class GameScreen extends BaseScreen {
         super.dispose();
         imgBg.dispose();
         atlas.dispose();
+        atlasBonus.dispose();
         bulletPool.dispose();
         explosionPool.dispose();
         enemyPool.dispose();
+        bonusPool.dispose();
         music.dispose();
         laserSound.dispose();
         bulletSound.dispose();
@@ -186,6 +197,8 @@ public class GameScreen extends BaseScreen {
         if (!mainShip.isDestroyed()) {
             mainShip.update(delta);
             bulletPool.updateActiveSprites(delta);
+            bonusPool.updateActiveSprites(delta);
+            bonusEmitter.generateBonus(delta);
             enemyPool.updateActiveSprites(delta);
             enemyEmitter.generateShip(delta, frags);
         }
@@ -203,6 +216,7 @@ public class GameScreen extends BaseScreen {
         if (!mainShip.isDestroyed()) {
             mainShip.draw(batch);
             bulletPool.drawActiveSprites(batch);
+            bonusPool.drawActiveSprites(batch);
             enemyPool.drawActiveSprites(batch);
         } else {
             gameOver.draw(batch);
@@ -223,6 +237,7 @@ public class GameScreen extends BaseScreen {
         bulletPool.freeAllDestroyedActiveSprites();
         explosionPool.freeAllDestroyedActiveSprites();
         enemyPool.freeAllDestroyedActiveSprites();
+        bonusPool.freeAllDestroyedActiveSprites();
     }
 
     /**
@@ -233,6 +248,7 @@ public class GameScreen extends BaseScreen {
             return;
         }
         List<EnemyShip> enemyShipList = enemyPool.getActiveSprits();
+        List<Bonus> bonusList = bonusPool.getActiveSprits();
         // проверка на столкновение кораблей и игрового корабля
         for (EnemyShip enemyShip : enemyShipList) {
             if (enemyShip.isDestroyed()) {
@@ -242,6 +258,15 @@ public class GameScreen extends BaseScreen {
             if (mainShip.pos.dst(enemyShip.pos) < minDistance) {
                 mainShip.setDamage(enemyShip.getBulletDamage() * 2);
                 enemyShip.setDestroyed();
+            }
+        }
+        for (Bonus bonus : bonusList) {
+            if (bonus.isDestroyed()) {
+                continue;
+            }
+            float minDistance = mainShip.getHalfWidth() + bonus.getHalfWidth();
+            if (mainShip.pos.dst(bonus.pos) < minDistance) {
+                bonus.setDestroyed();
             }
         }
         // Проверка на перекрещивание спрайтов <Корабль> и <Пуля>
@@ -262,6 +287,15 @@ public class GameScreen extends BaseScreen {
                     }
                 }
             }
+            for (Bonus bonus : bonusList) {
+                if (bonus.isDestroyed() || bullet.getOwner() != mainShip) {
+                    continue;
+                }
+                if (bonus.isBulletCollision(bullet)) {
+                    bullet.setDestroyed();
+                    bonus.setDestroyed();
+                }
+            }
             if (bullet.getOwner() != mainShip && mainShip.isBulletCollision(bullet)) {
                 mainShip.setDamage(bullet.getDamage());
                 bullet.setDestroyed();
@@ -275,6 +309,7 @@ public class GameScreen extends BaseScreen {
     public void startNewGame() {
         bulletPool.freeAllActiveSprites();
         enemyPool.freeAllActiveSprites();
+        bonusPool.freeAllActiveSprites();
         mainShip.startNewGame();
         frags = 0;
     }

@@ -1,0 +1,25 @@
+bonus.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+planet
+  rotate: false
+  xy: 1, 87
+  size: 399, 319
+  orig: 399, 319
+  offset: 0, 0
+  index: -1
+blackHole
+  rotate: false
+  xy: 402, 199
+  size: 455, 207
+  orig: 455, 207
+  offset: 0, 0
+  index: -1
+shine
+  rotate: false
+  xy: 402, 1
+  size: 173, 196
+  orig: 173, 196
+  offset: 0, 0
+  index: -1

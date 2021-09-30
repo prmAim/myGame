@@ -60,17 +60,6 @@ public class EnemyShip extends Ship {
         v.set(0f, -0.4f);
     }
 
-    /**
-     * Проверка на пересечение спрайта <Пуля> и <Корабля>
-     */
-    @Override
-    public boolean isBulletCollision(Bullet bullet) {
-        return !(
-                bullet.getRight() < getLeft() || bullet.getLeft() > getRight() || bullet.getBottom() > getTop() ||
-                        bullet.getTop() < pos.y     // Пуля добирается до центра корабля
-        );
-    }
-
     @Override
     public void setDestroyed() {
         super.setDestroyed();

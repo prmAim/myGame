@@ -4,50 +4,34 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
-import ru.game.math.Rect;
 import ru.game.pool.BulletPool;
-import ru.game.pool.ExplosionPool;
 import ru.game.sprite.Bullet;
-import ru.game.sprite.Explosion;
 
 /**
  * Класс объкта (Корабль)
  */
-public abstract class Ship extends Sprite {
+public class Ship extends ActionSprite {
 
-    private static final float RELOAD_INTERVAL = 0.18f;         // Интервал выстелов
     private static final float DAMAGE_ANIMATE_INTERVAL = 0.1f;  // Интревал повреждения <корабль>
 
-    protected final Vector2 v0;                 // Вектор скорости - шага для перемещения объета <корабль>
-    protected final Vector2 v;                  // Вектор скорости
+    private float damageAnimalTime = DAMAGE_ANIMATE_INTERVAL; // Имитация повреждения корабля. Переключение между спрайтами
 
-    protected Rect worldBounds;
-    protected ExplosionPool explosionPool;        // Pool объектов <Взрыв>
     protected BulletPool bulletPool;              // Pool объектов <Пуля>
     protected TextureRegion bulletRegion;         // текстура объекта <Пуля>
     protected Vector2 bulletV;                    // скорость пули
     protected Vector2 bulletPos;                  // началные координаты объета <Пуля>
     protected float bulletHeight;                 // размер пули
     protected int bulletDamage;                   // Урон от пули
-    protected float reloadTimer;                  // таймер
-    protected float reloadInterval;               // Интервал выстелов
     protected Sound bulletSound;                  // звуковой эффект
-    protected int hp;                             // размер здоровья
-
-    private float damageAnimalTime = DAMAGE_ANIMATE_INTERVAL; // Имитация повреждения корабля. Переключение между спрайтами
 
     public Ship() {
         super();
-        v0 = new Vector2();
-        v = new Vector2();
         bulletV = new Vector2();
         bulletPos = new Vector2();
     }
 
     public Ship(TextureRegion region, int rows, int cols, int frames) {
         super(region, rows, cols, frames);
-        v0 = new Vector2();
-        v = new Vector2();
         bulletV = new Vector2();
         bulletPos = new Vector2();
     }
@@ -74,12 +58,9 @@ public abstract class Ship extends Sprite {
     /**
      * Нанесение ущерба кораблю от полу
      */
+    @Override
     public void setDamage(int damage) {
-        hp -= damage;
-        if (hp <= 0) {
-            hp = 0;
-            setDestroyed();
-        }
+        super.setDamage(damage);
         frame = 1;                  // При попадании <Пули> меняется фрайм
         damageAnimalTime = 0f;      // сбрасываем счетчик
     }
@@ -93,33 +74,18 @@ public abstract class Ship extends Sprite {
         bulletSound.play(0.2f);
     }
 
-    /**
-     * Проверка на перекрещивание объекта <Пуля> и  <Корабль>
-     */
-    public abstract boolean isBulletCollision(Bullet bullet);
-
     public int getBulletDamage() {
         return bulletDamage;
     }
 
     /**
-     * Метод вызова объекта <Взрыв>
-     */
-    private void isStartBoom() {
-        Explosion explosion = explosionPool.obtain();
-        explosion.set(pos, getHeight());
-    }
-
-    /**
-     * Уничтожение корабля
+     * Проверка на пересечение спрайта <Пуля> и <Корабля>
      */
     @Override
-    public void setDestroyed() {
-        super.setDestroyed();
-        isStartBoom();              // при уничтожении объета <Корабль> вызываем взрыв
-    }
-
-    public int getHp() {
-        return hp;
+    public boolean isBulletCollision(Bullet bullet) {
+        return !(
+                bullet.getRight() < getLeft() || bullet.getLeft() > getRight() || bullet.getBottom() > getTop() ||
+                        bullet.getTop() < pos.y     // Пуля добирается до центра корабля
+        );
     }
 }
